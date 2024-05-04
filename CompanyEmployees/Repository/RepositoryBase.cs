@@ -4,21 +4,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Repository;
 
-public abstract class RepositoryBase<T>(RepositoryContext repositoryContext) : IRepositoryBase<T> where T : class
+public abstract class RepositoryBase<T>(DbContext repositoryContext) : IRepositoryBase<T> where T : class
 {
-    protected RepositoryContext RepositoryContext = repositoryContext;
-
     public IQueryable<T> FindAll(bool trackChanges) =>
         !trackChanges ?
-            RepositoryContext.Set<T>().AsNoTracking() :
-            RepositoryContext.Set<T>();
+            repositoryContext.Set<T>().AsNoTracking() :
+            repositoryContext.Set<T>();
     
     public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression, bool trackChanges) =>
         !trackChanges ?
-            RepositoryContext.Set<T>().Where(expression).AsNoTracking() :
-            RepositoryContext.Set<T>().Where(expression);
+            repositoryContext.Set<T>().Where(expression).AsNoTracking() :
+            repositoryContext.Set<T>().Where(expression);
     
-    public void Create(T entity) => RepositoryContext.Set<T>().Add(entity);
-    public void Update(T entity) => RepositoryContext.Set<T>().Update(entity);
-    public void Delete(T entity) => RepositoryContext.Set<T>().Remove(entity);
+    public void Create(T entity) => repositoryContext.Set<T>().Add(entity);
+    public void Update(T entity) => repositoryContext.Set<T>().Update(entity);
+    public void Delete(T entity) => repositoryContext.Set<T>().Remove(entity);
 }

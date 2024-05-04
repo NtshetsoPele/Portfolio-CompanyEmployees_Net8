@@ -10,12 +10,12 @@ app.UseAuthorization();
 
 app.Use(middleware: async (HttpContext context, Func<Task> next) =>
 {
-    Console.WriteLine("Logic before executing the next delegate in the Use method");
+    Console.WriteLine("Logic before executing the next delegate in the use method");
     await next.Invoke();
-    Console.WriteLine("Logic after executing the next delegate in the Use method");
+    Console.WriteLine("Logic after executing the next delegate in the use method");
 });
 
-app.Map(pathMatch: "/usingmapbranch", configuration: (IApplicationBuilder builder) =>
+app.Map(pathMatch: "/using-map-branch", configuration: (IApplicationBuilder builder) =>
 {
     builder.Use(middleware: async (HttpContext context, Func<Task> next) =>
     {
@@ -31,7 +31,7 @@ app.Map(pathMatch: "/usingmapbranch", configuration: (IApplicationBuilder builde
 });
 
 app.MapWhen(
-    predicate: (HttpContext context) => context.Request.Query.ContainsKey("testquerystring"), 
+    predicate: (HttpContext context) => context.Request.Query.ContainsKey("testquerystring"),
     configuration: (IApplicationBuilder builder) =>
 {
     builder.Run(handler: async (HttpContext context) =>

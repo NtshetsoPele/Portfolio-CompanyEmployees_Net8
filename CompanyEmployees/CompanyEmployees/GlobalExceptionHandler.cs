@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Contracts;
+﻿using Contracts;
 using Entities.ErrorModel;
 using Entities.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
@@ -16,24 +15,24 @@ public class GlobalExceptionHandler(ILoggerManager logger) : IExceptionHandler
         //httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         httpContext.Response.ContentType = "application/json";
         
+        // Use the exception parameter instead?
         var contextFeature = httpContext.Features.Get<IExceptionHandlerFeature>();
-        if (contextFeature != null)
+        if (contextFeature == null) return true;
+        httpContext.Response.StatusCode = contextFeature.Error switch
         {
-            httpContext.Response.StatusCode = contextFeature.Error switch
-            {
-                NotFoundException => StatusCodes.Status404NotFound,
-                _ => StatusCodes.Status500InternalServerError
-            };
+            NotFoundException => StatusCodes.Status404NotFound,
+            BadRequestException => StatusCodes.Status400BadRequest,
+            _ => StatusCodes.Status500InternalServerError
+        };
             
-            logger.LogError($"Something went wrong: {exception.Message}");
+        logger.LogError($"Something went wrong: {exception.Message}");
             
-            await httpContext.Response.WriteAsync(new ErrorDetails
-            {
-                StatusCode = httpContext.Response.StatusCode,
-                Message = contextFeature.Error.Message,
-            }.ToString());
-        }
-        
+        await httpContext.Response.WriteAsync(new ErrorDetails
+        {
+            StatusCode = httpContext.Response.StatusCode,
+            Message = contextFeature.Error.Message,
+        }.ToString(), cancellationToken: cancellationToken);
+
         return true;
     }
 }
